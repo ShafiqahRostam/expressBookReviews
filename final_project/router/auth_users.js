@@ -43,7 +43,7 @@ regd_users.post("/login", (req, res) => {
       accessToken,
       username,
     };
-    return res.status(200).send("User successfully logged in");
+    return res.status(200).send("Customer successfully logged in");
   } else {
     return res.status(208).json({ message: "Invalid Login. Check username and password" });
   }
@@ -57,7 +57,10 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 
   if (books[isbn]) {
     books[isbn].reviews[currentUser] = review;
-    res.send(books[isbn]);
+    res.send({
+      message: `Successfully added review from customer '${currentUser}' for book with ISBN '${isbn}'`,
+      book: books[isbn]
+    });
   } else {
     res.status(400).send(`Error: No book found with ISBN '${isbn}'`);
   }
@@ -65,9 +68,12 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 
 regd_users.delete("/auth/review/:isbn", (req, res) => {
   const isbn = req.params.isbn;
-  delete books[isbn].reviews[req.session.authorization.username];
+  const currentUser = req.session.authorization.username;
+
+  delete books[isbn].reviews[currentUser];
+
   res.send({
-    message: `Deleted book review for ${req.session.authorization.username}`,
+    message: `Successfully removed book review from customer '${currentUser}' for book with ISBN '${isbn}'`,
     book: books[isbn],
   });
 });
